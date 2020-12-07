@@ -12,7 +12,7 @@ print('''
 <!doctype html>
 <html>
 <head>
-  <title>MOS Structure</title>
+  <title>MOS Structures</title>
   <meta charset="utf-8">
 </head>
 
