@@ -1,9 +1,16 @@
-import os, cgi, view
+import os, cgi, view, html_sanitizer
+sanitizer = html_sanitizer.Sanitizer()
+
 def getList():
     files = os.listdir('data')
     listStr = ''
+    pageId=view.pageId()
     for item in files:
-          listStr += '<li><a href="index.py?id={name}">{name}</a></li>\n'.format(name=item)
+        item = sanitizer.sanitize(item)
+        if pageId == item:
+            listStr += f'<li><a href="index.py?id={item}" class="thisPage">{item}</a></li>\n'
+        else:
+            listStr += f'<li><a href="index.py?id={item}">{item}</a></li>\n'
     return listStr
 
 def pageId():
@@ -19,6 +26,7 @@ def description():
     pageId = view.pageId()
     if 'id' in form:
         description = open('C:/Bitnami/wampstack-7.4.12-0/apache2/htdocs/data/'+pageId, 'r', encoding='utf-8').read()
+        description = sanitizer.sanitize(description);
     else:
         description = 'Hello Semiconductor'
     if '–' in description:
@@ -56,12 +64,12 @@ def image():
         if pageId in image_links:
             image = '<a href="{link}" target=_blank><img src="image/{source}"></a>'.format(link=image_links[pageId], source=image_sources[pageId])
         else:
-            image = '<img src="{source}">'.format(source=image_sources[pageId])
+            image = '<img src="image/{source}">'.format(source=image_sources[pageId])
     elif pageId in image_sources:
         image = '<a href="{}" target=_blank>{}</a>'.format(image_links[pageId])
     return image
 
-def encodeUTF8():     
+def encodeUTF8():
     import sys
     import codecs
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
@@ -88,17 +96,54 @@ def updateForm():
     return updateForm
 
 
+
 strStart = '''
 <!doctype html>
 <html>
 <head>
   <title>Semiconductor</title>
   <meta charset="utf-8">
+  <style>
+    .thisPage {
+      color:blue;
+      text-decoration: none;
+    }
+    a {
+      color:black;
+      text-decoration: none;
+    }
+    h1 {
+      font-size: 60px;
+      text-align: center;
+      border-bottom: 1px solid gray;
+      padding: 30px;
+      margin:0px;
+      display:block;
+      margin-left:auto;
+      margin-right:auto;
+      
+    }
+    #grid ol {
+      border-right:1px solid gray;
+      width:150px;
+      padding-left:32px;
+      margin:30px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: 0px 220px 1fr;
+    }
+    #article{
+      margin:30px;
+    }
+    
+  </style>
 </head>
 <body>
   <h1><a href='index.py'>Semiconductor</h1>
 '''
 strCreate = '<a href="create.py">create</a>'
+
 
 
 image_sources = {'MOSCAP':'metalstack.gif', 'MOSFET':'mosfet.png', 'CMOS':'cmos.png', 'MOS Structure':'mos.png', 'SIO2':'sio2.png'}
